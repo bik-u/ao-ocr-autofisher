@@ -9,7 +9,7 @@ PS: It's sometimes unreliable but I think it will work almost everytime.
 
 ## HOW TO AFK
 
-    - Make sure your character is looking towards the ocean (opposite of recoil)
+    - Make sure your camera is looking towards the ocean (opposite of recoil)
 
     - Your character starts slight away from a wall straight behind you.
 
