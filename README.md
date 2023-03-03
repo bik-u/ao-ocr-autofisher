@@ -1,6 +1,6 @@
 # Auto Fisher
 
-Auto fishes in Arcane Oddesey using OCR to analyze screenshot footage.
+Auto fishes in Arcane Odyssey using OCR to analyze screenshot footage.
 It takes a screenshot every second so not that slow.
 
 This program is meant to be educational and not actually be used since it can get you banned.
