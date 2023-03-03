@@ -7,7 +7,7 @@ This program is meant to be educational and not actually be used since it can ge
 
 PS: It's sometimes unreliable but I think it will work almost everytime.
 
-(Download Here)[https://github.com/bik-u/ao-ocr-autofisher/releases]
+[Download Here](https://github.com/bik-u/ao-ocr-autofisher/releases)
 
 ## HOW TO AFK
 
