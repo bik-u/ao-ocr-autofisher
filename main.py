@@ -96,7 +96,11 @@ def loop():
                     print("You caught something!")
                     caught_time = time.time()
                     reeling = False
+                    keyboard.press('w')
+                    time.sleep(0.05)
+                    keyboard.release('w')
                     caught_fish(rod_slot)
+                    
             res = cv.inRange(img[h1:,w1:], np.array([0, 0, 250]), np.array([5, 5, 255]))
             text = image_to_text(Image.fromarray(res))
             if text.lower().find("starving") > -1:
