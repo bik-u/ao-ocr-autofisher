@@ -9,6 +9,7 @@ PS: It's sometimes unreliable but I think it will work almost everytime.
 For afking most important thing to remember is to make sure your character stays in one spot even after recoil (straight wall behind you).
 
 TODO: 
+
     - Add recoil support
     
     - Add a way to edit various settings (prob yaml file or gui program)
