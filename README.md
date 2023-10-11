@@ -13,11 +13,10 @@ PS: It's sometimes unreliable but I think it will work almost everytime.
 
     - Make sure your camera is looking towards the ocean (opposite of recoil)
 
-    - Your character starts slight away from a wall straight behind you.
+    - Go in your ship and wedge yourself between a cannon. Ex:
+        !(image)[https://i.imgur.com/mlLFAYh.png]:w
+        
 
-The recoil needs to be stopped by a wall.
-
-It presses forward slightly so your fishingrod does not get stuck in the wall behind you.
 
 # TODO
 
