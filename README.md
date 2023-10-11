@@ -15,7 +15,7 @@ PS: It's sometimes unreliable but I think it will work almost everytime.
 
     - Go in your ship and wedge yourself between a cannon. Ex:
 
-!(image)[https://i.imgur.com/mlLFAYh.png]:w
+!(image)[https://i.imgur.com/mlLFAYh.png]
         
 
 
