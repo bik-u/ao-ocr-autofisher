@@ -13,9 +13,9 @@ PS: It's sometimes unreliable but I think it will work almost everytime.
 
     - Make sure your camera is looking towards the ocean (opposite of recoil)
 
-    - Go in your ship and wedge yourself between a cannon. Ex:
+    - Go in your ship and wedge yourself between a cannon. Ex. be;pw
 
-!(image)[https://i.imgur.com/mlLFAYh.png]
+![Example](https://i.imgur.com/mlLFAYh.png)
         
 
 
