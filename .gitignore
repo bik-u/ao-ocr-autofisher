@@ -3,3 +3,4 @@ dist
 build
 eng.traineddata
 *.spec
+tesseract/

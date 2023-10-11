@@ -6,6 +6,7 @@ import mouse
 from threading import Thread, Lock
 import cv2 as cv
 import pytesseract
+import json, requests
 
 
 pytesseract.pytesseract.tesseract_cmd = './tesseract/tesseract.exe'
@@ -65,7 +66,6 @@ def loop():
         reel_time = None
         starved_time = None
         while True:
-            time.sleep(1/5)
             diff = time.time() - prev_time
             with real_lock:
                 if reeling:
@@ -91,11 +91,11 @@ def loop():
                         else:
                             approve = True
                         if approve:
-                            print("You caught something!")
+                            print(text)
                             caught_time = time.time()
                             reeling = False
                             keyboard.press('w')
-                            time.sleep(0.05)
+                            time.sleep(1)
                             keyboard.release('w')
                             caught_fish(rod_slot)
 
@@ -117,21 +117,19 @@ def loop():
                         with real_lock:
                             reeling = False
                         if food_index < len(food_slots) + 1:
-                            print("You ate food")
                             keyboard.press_and_release(food_slots[food_index])
-                            time.sleep(0.3)
-                            mouse.click()
-                            time.sleep(0.3)
+                            for i in range(3):
+                                time.sleep(0.3)
+                                mouse.click()
+                                time.sleep(0.3)
                             keyboard.press_and_release(rod_slot)
                             caught_fish(rod_slot)
 
                 prev_time = time.time()
 
             # Bait part
-            w2, h2 = w1, int(h * 0.84)
-            b_sx, bsy = int(0.18*w), int(0.04*h)
-            b_img = img[h2:h2+bsy, w1-b_sx:w1+b_sx]
-            res = cv.inRange(b_img, np.array([133, 133, 250]), np.array([143, 143, 255]))
+            w3 = int(w*1/3)
+            res = cv.inRange(img[h1:,w3:w3*2], np.array([133, 133, 250]), np.array([143, 143, 255]))
             text = pytesseract.image_to_string(res)
             if text.lower().find('fish bait') > -1:
                 b = None
