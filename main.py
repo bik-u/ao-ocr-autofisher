@@ -6,7 +6,7 @@ import mouse
 from threading import Thread, Lock
 import cv2 as cv
 import pytesseract
-import json, requests
+import random
 
 
 pytesseract.pytesseract.tesseract_cmd = './tesseract/tesseract.exe'
@@ -118,10 +118,9 @@ def loop():
                             reeling = False
                         if food_index < len(food_slots) + 1:
                             keyboard.press_and_release(food_slots[food_index])
-                            for i in range(3):
-                                time.sleep(0.3)
-                                mouse.click()
-                                time.sleep(0.3)
+                            time.sleep(0.3)
+                            mouse.click()
+                            time.sleep(0.3)
                             keyboard.press_and_release(rod_slot)
                             caught_fish(rod_slot)
 
@@ -146,6 +145,7 @@ def loop():
                 if prev_bait and b:
                     if prev_bait-1 == b:
                         with real_lock:
+                            time.sleep(random.uniform(0.1, 0.5))
                             reeling = True
                         reel_time = time.time()
                     prev_bait = b
