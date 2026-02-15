@@ -8,7 +8,7 @@ PS: It's sometimes unreliable but I think it will work almost everytime.
 
 ## HOW TO AFK
 
-Turn graphics down to 1.
+Go on fullscren and turn graphics down to 1.
 
 Make sure character is shift-locked, facing the ocean.
 
