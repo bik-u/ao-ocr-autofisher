@@ -3,158 +3,127 @@ import numpy as np
 import keyboard
 from mss.windows import MSS as mss
 import mouse
+import threading
 from threading import Thread, Lock
-import cv2 as cv
-import pytesseract
+import cv2 as cv2
 import random
 
 
-pytesseract.pytesseract.tesseract_cmd = './tesseract/tesseract.exe'
+w, h = 1920, 1080
+
+# Color limits in rgb
+lower_white = [230, 230, 230]
+upper_white = [255, 255, 255]
+
+lower_red = [230, 0, 0]
+upper_red = [255, 0, 0]
+
+lower_yellow = [0, 250, 250]
+upper_yellow = [0, 255, 255]
 
 
-global reeling
-global real_lock
-reeling = False
-real_lock = Lock()
+def test_img(img):
+    cv2.imshow("img", img)
+    cv2.waitKey(1)
 
 
-def get_setting() -> tuple:
-    v = input()
-    is_int = True
-    try:
-        int(v)
-    except ValueError:
-        is_int = False 
-    return is_int, v 
+def get_middle_numbers(res, p_1, p_2):
+    return int(res * p_1), int(res * p_2)
 
 
-def caught_fish(rod_slot):
-    keyboard.press_and_release(rod_slot)
-    time.sleep(0.3)
-    keyboard.press_and_release(rod_slot)
-    time.sleep(1)
-    mouse.click()
+class Fisher:
 
 
-def reel(main_loop):
-    global reeling
-    while main_loop.is_alive():
-        with real_lock:
-            if reeling:
-                mouse.click()
-        time.sleep(0.05)
+    def __init__(self):
+        self.reel_lock = Lock()
+        self.reeling = False
+        self.total = 0
+        
+        self.check_start_time = 0
+        self.alert_start_time = 0
+        self.times_reeled = 0
+
+    def reel_loop(self):
+        while threading.main_thread().is_alive():
+            with self.reel_lock:
+                if self.reeling and self.times_reeled < 70:
+                    self.times_reeled += 1
+                    mouse.click()
+                elif self.reeling and self.times_reeled > 70:
+                    self.reeling = False
+                    self.reset_rod()
+            time.sleep(0.3)
 
 
+    def reset_rod(self):
+        self.reeling = False
+        self.times_reeled = 0
+        time.sleep(2)
+        self.check_start_time = time.time()
+        keyboard.press_and_release('2')
+        time.sleep(0.5)
+        keyboard.press_and_release('1')
+        time.sleep(0.9)
+        mouse.click()
 
-def loop():
-    global reeling
-    global real_lock
-    food_index = 0
-    # The 1st slot
-    rod_slot = '1'
-    # Represents 2-0 in the number bar
-    food_slots = [str(x) for x in range(2,10)]
-    food_slots.append('0')
-    print(f"The rod slot is {rod_slot}, rest of the slots are for food!. Starting in 3..")
-    time.sleep(3)
-    print("Starting..")
-    with mss() as sct:
-        prev_time = time.time()
-        prev_bait = None
-        # Useful time values for checks
-        caught_time = None
-        reel_time = None
-        starved_time = None
+
+    def check_caught(self, img):
+        w_m = get_middle_numbers(w, 0.8, 0.2)
+        h_m = get_middle_numbers(h, 0.5, 0.5)
+        caught_img = img[h_m[0]:h_m[0]+h_m[1], w_m[0]:w_m[0]+w_m[1]]
+        caught_mask = cv2.inRange(caught_img, np.array(lower_yellow), np.array(upper_yellow))
+        count_white_pixels = np.count_nonzero(caught_mask)
+        white_percentage = (count_white_pixels / (caught_mask.shape[0] * caught_mask.shape[1]))
+        if white_percentage >= 0.0015:
+            self.total +=1
+            print(f"Caught something! Total: {self.total}")
+            self.reeling = False
+            self.reset_rod()
+
+
+    def check_alert(self, img):
+        w_m = get_middle_numbers(w, 0.3, 0.3)
+        h_m = get_middle_numbers(h, 0.2, 0.2)
+        alert_img = img[h_m[0]:h_m[0]+h_m[1], w_m[0]:w_m[0]+w_m[1]]
+        alert_mask = cv2.inRange(alert_img, np.array(lower_white), np.array(upper_white))
+        count_white_pixels = np.count_nonzero(alert_mask)
+        white_percentage = (count_white_pixels / (alert_mask.shape[0] * alert_mask.shape[1])) 
+        if white_percentage >= 0.15:
+            print("Reeling!")
+            self.alert_start_time = time.time()
+            self.reeling = True
+
+
+    def loop(self):
+        print("Make sure character is shift-locked, facing the ocean.\nBest camera position is pressing o twice after going in first person.")
+        time.sleep(3)
+        print("Starting..")
+        self.reset_rod()
+
         while True:
-            diff = time.time() - prev_time
-            with real_lock:
-                if reeling:
-                    if time.time() - reel_time > 15:
-                        reeling = False
-                        caught_fish(rod_slot)
+            with mss() as sct:
+                monitor = sct.monitors[1]
+                img = np.array(sct.grab(monitor))
+                img = cv2.cvtColor(img, cv2.COLOR_RGBA2RGB)
+                img = cv2.resize(img, (1920, 1080))
+                # Check if is in game
 
-            img = np.array(sct.grab(sct.monitors[1]))
-            img = cv.cvtColor(img, cv.COLOR_RGBA2RGB)
-            # Usefull seperations
-            h, w = img.shape[:-1]
-            w1, h1 = int(w/2), int(h/2)
-
-            with real_lock:
-                if reeling:
-                    res = cv.inRange(img[h1:,w1:], np.array([0, 250, 250]), np.array([5, 255, 255]))
-                    text = pytesseract.image_to_string(res)
-                    if text.lower().find("caught") > -1:
-                        approve = False
-                        if caught_time:
-                            if time.time() - caught_time > 15:
-                                approve = True 
-                        else:
-                            approve = True
-                        if approve:
-                            print(text)
-                            caught_time = time.time()
-                            reeling = False
-                            keyboard.press('w')
-                            time.sleep(1)
-                            keyboard.release('w')
-                            caught_fish(rod_slot)
-
-            if diff > 5:    
-                res = cv.inRange(img[h1:,w1:], np.array([0, 0, 250]), np.array([5, 5, 255]))
-                text = pytesseract.image_to_string(res)
-                if text.lower().find("starving") > -1:
-                    approve = False
-                    if starved_time:
-                        if time.time() - starved_time > 30:
-                            approve = True
-                        elif time.time() - starved_time > 12:
-                            food_index += 1
-                            approve = True
+                # If reeling check if caught or check alert
+                with self.reel_lock:
+                    if self.reeling:
+                        self.check_caught(img)
                     else:
-                        approve = True 
-                    if approve:
-                        starved_time = time.time()
-                        with real_lock:
-                            reeling = False
-                        if food_index < len(food_slots) + 1:
-                            keyboard.press_and_release(food_slots[food_index])
-                            time.sleep(0.3)
-                            mouse.click()
-                            time.sleep(0.3)
-                            keyboard.press_and_release(rod_slot)
-                            caught_fish(rod_slot)
-
-                prev_time = time.time()
-
-            # Bait part
-            w3 = int(w*1/3)
-            res = cv.inRange(img[h1:,w3:w3*2], np.array([133, 133, 250]), np.array([143, 143, 255]))
-            text = pytesseract.image_to_string(res)
-            if text.lower().find('fish bait') > -1:
-                b = None
-                try:
-                    for i in text.split():
-                        if len(i) > 1 and i[0].lower() == 'x':
-                            b = int(i[1:])
-                except ValueError as exp:
-                    pass
-                except IndexError:
-                    pass
-                if not prev_bait and b:
-                    prev_bait = b
-                if prev_bait and b:
-                    if prev_bait-1 == b:
-                        with real_lock:
-                            time.sleep(random.uniform(0.1, 0.5))
-                            reeling = True
-                        reel_time = time.time()
-                    prev_bait = b
-
+                        self.check_alert(img)
+                    if time.time() - self.check_start_time > 90:
+                        print("Took too long resetting rod")
+                        self.reset_rod()
+                            
             
 def main():
-    pic_loop = Thread(group=None, target=loop, daemon=True)
-    pic_loop.start()
-    reel(pic_loop)
+    fisher = Fisher()
+
+    Thread(target=fisher.reel_loop).start()
+    fisher.loop()
 
 
 if __name__ == "__main__":
