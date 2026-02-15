@@ -1,8 +1,5 @@
 # Auto Fisher
 
-Auto fishes in Arcane Odyssey using OCR to analyze screenshot footage.
-It takes a screenshot every second so not that slow.
-
 This program is meant to be educational and not actually be used since it can get you banned.
 
 PS: It's sometimes unreliable but I think it will work almost everytime.
@@ -11,9 +8,13 @@ PS: It's sometimes unreliable but I think it will work almost everytime.
 
 ## HOW TO AFK
 
-    - Make sure your camera is looking towards the ocean (opposite of recoil)
+Turn graphics down to 1.
 
-    - Go in your ship and wedge yourself between a cannon. Ex. below
+Make sure character is shift-locked, facing the ocean.
+
+Required camera position is pressing 'o' twice after going in first person.
+
+It will NOT work if camera position is wrong, the mask is very sensitive to white and other colors similar to fish alert icon.
 
 ![Example](https://i.imgur.com/mlLFAYh.png)
         
@@ -21,6 +22,4 @@ PS: It's sometimes unreliable but I think it will work almost everytime.
 
 # TODO
 
-    - Add actual recoil support
-    
     - Add a way to edit various settings (prob yaml file or gui program)
